@@ -121,5 +121,5 @@ func New(cfg config.Storage) (*Storage, error) {
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
-	return &Storage{db: db}, nil
+	return &Storage{db: db}, db.Ping()
 }
