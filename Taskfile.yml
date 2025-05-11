@@ -1,0 +1,19 @@
+# https://taskfile.dev
+
+version: '3'
+
+tasks:
+  migrate:
+    desc: "create necessary tables for the PostgreSQL database"
+    cmds:
+      - go run ./cmd/migrator --config=config/migration.yaml
+  migrate_down:
+    desc: "drop postgresql tables"
+    cmds:
+      - go run ./cmd/migrator --config=config/migration.yaml --operation=down
+  run:
+    desc: "run the gRPC app"
+    cmds:
+      - go mod tidy
+      - task migrate
+      - CONFIG_PATH=./config/local.yaml go run ./cmd/sso
