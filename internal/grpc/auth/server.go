@@ -9,7 +9,6 @@ import (
 	"google.golang.org/grpc/status"
 	"sso-auth/internal/lib/validator"
 	"sso-auth/internal/services/auth"
-	"sso-auth/internal/storage"
 )
 
 type serverAPI struct {
@@ -37,15 +36,19 @@ func Register(gRPC *grpc.Server, auth Auth) {
 }
 
 func (s *serverAPI) Login(ctx context.Context, req *ssov1.LoginRequest) (*ssov1.LoginResponse, error) {
-	valid := validator.ValidatePlaceholder(req.Placeholder)
-	if valid == -1 {
-		return nil, status.Error(codes.InvalidArgument, "invalid placeholder")
+	if req.Placeholder == "" {
+		return nil, status.Error(codes.InvalidArgument, "placeholder is required")
 	}
 	if req.Password == "" {
-		return nil, status.Error(codes.InvalidArgument, "empty password")
+		return nil, status.Error(codes.InvalidArgument, "password is required")
 	}
 	if req.AppId == empty {
 		return nil, status.Error(codes.InvalidArgument, "app id is required")
+	}
+
+	valid := validator.ValidatePlaceholder(req.Placeholder)
+	if valid == -1 {
+		return nil, status.Error(codes.InvalidArgument, "invalid placeholder")
 	}
 
 	// note that the Login() function only gets called when the placeholder is valid.
@@ -60,18 +63,27 @@ func (s *serverAPI) Login(ctx context.Context, req *ssov1.LoginRequest) (*ssov1.
 }
 
 func (s *serverAPI) Register(ctx context.Context, req *ssov1.RegisterRequest) (*ssov1.RegisterResponse, error) {
+	if req.Email == "" {
+		return nil, status.Error(codes.InvalidArgument, "email is required")
+	}
+	if req.Username == "" {
+		return nil, status.Error(codes.InvalidArgument, "username is required")
+	}
+	if req.Password == "" {
+		return nil, status.Error(codes.InvalidArgument, "password is required")
+	}
 	if !validator.ValidateEmail(req.GetEmail()) {
 		return nil, status.Error(codes.InvalidArgument, "invalid email")
 	}
 	if !validator.ValidateUsername(req.GetUsername()) {
 		return nil, status.Error(codes.InvalidArgument, "invalid username")
 	}
-	if !validator.ValidatePassword(req.GetPassword()) {
-		return nil, status.Error(codes.InvalidArgument, "empty password")
+	if !validator.ValidatePassword(req.Password) {
+		return nil, status.Error(codes.InvalidArgument, "invalid password. Required: 8 <= length <= 72; lower, upper, numeric, special characters.")
 	}
 	userId, err := s.auth.RegisterNewUser(ctx, req.GetEmail(), req.GetUsername(), req.GetPassword())
 	if err != nil {
-		if errors.Is(err, storage.ErrUserExists) {
+		if errors.Is(err, auth.ErrUserExists) {
 			return nil, status.Error(codes.AlreadyExists, "user already exists")
 		}
 
@@ -86,7 +98,7 @@ func (s *serverAPI) IsAdmin(ctx context.Context, req *ssov1.IsAdminRequest) (*ss
 	}
 	a, err := s.auth.IsAdmin(ctx, req.GetUserId())
 	if err != nil {
-		if errors.Is(err, storage.ErrUserNotFound) {
+		if errors.Is(err, auth.ErrUserNotFound) {
 			return nil, status.Error(codes.NotFound, "user not found")
 		}
 

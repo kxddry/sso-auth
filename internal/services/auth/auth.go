@@ -55,6 +55,8 @@ func New(log *slog.Logger, storage Storage, tokenTTL time.Duration) *Auth {
 var (
 	ErrInvalidCredentials = errors.New("invalid login or password")
 	ErrInvalidPlaceholder = errors.New("invalid email or username")
+	ErrUserExists         = errors.New("user already exists")
+	ErrUserNotFound       = errors.New("user not found")
 )
 
 // Login checks if the user with given credentials exists in the system.
@@ -128,17 +130,39 @@ func (a *Auth) RegisterNewUser(ctx context.Context, email string, username strin
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		log.Error("failed to generate password hash", sl.Err(err))
-		return -2, fmt.Errorf("%s: %w", op, err)
+		return 0, fmt.Errorf("%s: %w", op, err)
 	}
 	id, err := a.userSaver.SaveUser(ctx, email, username, hash)
 	if err != nil {
+		if errors.Is(err, storage.ErrUserExists) {
+			log.Warn("user already exists", sl.Err(err))
+
+			return 0, fmt.Errorf("%s: %w", op, ErrUserExists)
+		}
+
 		log.Error("failed to save user", sl.Err(err))
-		return -1, fmt.Errorf("%s: %w", op, err) // -1 just in case
+		return 0, fmt.Errorf("%s: %w", op, err)
 	}
 	return id, nil
 }
 
 // IsAdmin checks whether the user with userID is an admin.
 func (a *Auth) IsAdmin(ctx context.Context, userID int64) (bool, error) {
-	return a.userProvider.IsAdmin(ctx, userID)
+	const op = "Auth.IsAdmin"
+	log := a.log.With(
+		slog.String("op", op),
+		slog.Int64("user_id", userID),
+	)
+
+	log.Info("checking if user is admin")
+
+	isAdmin, err := a.userProvider.IsAdmin(ctx, userID)
+	if err != nil {
+		if errors.Is(err, storage.ErrUserNotFound) {
+			return false, ErrUserNotFound
+		}
+		return false, fmt.Errorf("%s: %w", op, err)
+	}
+	log.Info("checked if user is admin", slog.Bool("isAdmin", isAdmin))
+	return isAdmin, nil
 }
