@@ -1,9 +1,9 @@
 package logger
 
 import (
+	"github.com/kxddry/sso-auth/internal/lib/logger/handlers/slogpretty"
 	"log/slog"
 	"os"
-	"sso-auth/internal/lib/logger/handlers/slogpretty"
 )
 
 const (

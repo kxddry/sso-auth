@@ -2,10 +2,10 @@ package grpcapp
 
 import (
 	"fmt"
+	authgrpc "github.com/kxddry/sso-auth/internal/grpc/auth"
 	"google.golang.org/grpc"
 	"log/slog"
 	"net"
-	authgrpc "sso-auth/internal/grpc/auth"
 	"strconv"
 )
 

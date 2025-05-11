@@ -1,11 +1,11 @@
 package app
 
 import (
+	"github.com/kxddry/sso-auth/internal/app/grpcapp"
+	"github.com/kxddry/sso-auth/internal/config"
+	"github.com/kxddry/sso-auth/internal/services/auth"
+	"github.com/kxddry/sso-auth/internal/storage/postgres"
 	"log/slog"
-	"sso-auth/internal/app/grpcapp"
-	"sso-auth/internal/config"
-	"sso-auth/internal/services/auth"
-	"sso-auth/internal/storage/postgres"
 	"time"
 )
 

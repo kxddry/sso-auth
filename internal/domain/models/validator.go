@@ -1,6 +1,6 @@
 package models
 
-import "sso-auth/internal/lib/validator"
+import "github.com/kxddry/sso-auth/internal/lib/validator"
 
 const (
 	Invalid  = validator.Fail

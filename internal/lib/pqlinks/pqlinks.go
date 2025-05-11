@@ -3,7 +3,7 @@ package pqlinks
 import (
 	"database/sql"
 	"fmt"
-	"sso-auth/internal/config"
+	"github.com/kxddry/sso-auth/internal/config"
 	"strings"
 
 	_ "github.com/lib/pq"

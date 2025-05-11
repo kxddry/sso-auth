@@ -1,4 +1,4 @@
-module sso-auth
+module github.com/kxddry/sso-auth
 
 go 1.24.2
 

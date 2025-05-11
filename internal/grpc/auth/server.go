@@ -3,12 +3,12 @@ package auth
 import (
 	"context"
 	"errors"
+	"github.com/kxddry/sso-auth/internal/lib/validator"
+	"github.com/kxddry/sso-auth/internal/services/auth"
 	ssov1 "github.com/kxddry/sso-protos/gen/go/sso"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"sso-auth/internal/lib/validator"
-	"sso-auth/internal/services/auth"
 )
 
 type serverAPI struct {

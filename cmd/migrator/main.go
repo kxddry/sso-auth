@@ -3,9 +3,9 @@ package main
 import (
 	"errors"
 	"flag"
+	"github.com/kxddry/sso-auth/internal/config"
+	"github.com/kxddry/sso-auth/internal/lib/pqlinks"
 	"log"
-	"sso-auth/internal/config"
-	"sso-auth/internal/lib/pqlinks"
 	// migration
 	"github.com/golang-migrate/migrate/v4"
 

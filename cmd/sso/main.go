@@ -1,11 +1,11 @@
 package main
 
 import (
+	"github.com/kxddry/sso-auth/internal/app"
+	"github.com/kxddry/sso-auth/internal/config"
+	"github.com/kxddry/sso-auth/internal/lib/logger"
 	"os"
 	"os/signal"
-	"sso-auth/internal/app"
-	"sso-auth/internal/config"
-	"sso-auth/internal/lib/logger"
 	"syscall"
 )
 

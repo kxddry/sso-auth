@@ -4,12 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/kxddry/sso-auth/internal/domain/models"
+	"github.com/kxddry/sso-auth/internal/lib/jwt"
+	"github.com/kxddry/sso-auth/internal/lib/logger/sl"
+	"github.com/kxddry/sso-auth/internal/storage"
 	"golang.org/x/crypto/bcrypt"
 	"log/slog"
-	"sso-auth/internal/domain/models"
-	"sso-auth/internal/lib/jwt"
-	"sso-auth/internal/lib/logger/sl"
-	"sso-auth/internal/storage"
 	"time"
 )
 

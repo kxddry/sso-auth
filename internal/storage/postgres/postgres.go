@@ -5,12 +5,12 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/kxddry/sso-auth/internal/config"
+	"github.com/kxddry/sso-auth/internal/domain/models"
+	"github.com/kxddry/sso-auth/internal/lib/pqlinks"
+	"github.com/kxddry/sso-auth/internal/storage"
 	"github.com/lib/pq"
 	_ "github.com/lib/pq"
-	"sso-auth/internal/config"
-	"sso-auth/internal/domain/models"
-	"sso-auth/internal/lib/pqlinks"
-	"sso-auth/internal/storage"
 )
 
 type Storage struct {
