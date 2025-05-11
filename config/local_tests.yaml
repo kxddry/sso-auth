@@ -1,0 +1,13 @@
+env: "local" # local, dev, prod
+token_ttl: 1h
+postgres:
+    host: "localhost"
+    port: 5432
+    user: "postgres"
+    password: "password"
+    dbname: "sso_tests"
+    sslmode: "disable"
+
+grpc:
+    port: 42042
+    timeout: 40h

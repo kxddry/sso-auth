@@ -3,7 +3,6 @@ package config
 import (
 	"flag"
 	"github.com/ilyakaznacheev/cleanenv"
-	"log"
 	"os"
 	"time"
 )
@@ -22,6 +21,16 @@ type Storage struct {
 	DBName   string `yaml:"dbname" env-required:"true"`
 	SSLMode  string `yaml:"sslmode" env-default:"enable"`
 }
+
+type MigrationConfig struct {
+	Storage    Storage    `yaml:"storage" env-required:"true"`
+	Migrations Migrations `yaml:"migrations" env-required:"true"`
+}
+
+type Migrations struct {
+	Path string `yaml:"path" env-required:"true"`
+}
+
 type GRPCServer struct {
 	Port    int           `yaml:"port" env-required:"true"`
 	Timeout time.Duration `yaml:"timeout" env-default:"10s"`
@@ -30,16 +39,39 @@ type GRPCServer struct {
 func MustLoad() *Config {
 	path := fetchConfigPath()
 	if path == "" {
-		log.Fatal("config path is empty")
+		panic("config path is empty")
 	}
+	return MustLoadByPath(path)
+}
+
+func MustLoadMigration() *MigrationConfig {
+	path := fetchConfigPath()
+	if path == "" {
+		panic("config path is empty")
+	}
+	return MustLoadMigrationByPath(path)
+}
+
+func MustLoadMigrationByPath(path string) *MigrationConfig {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		log.Fatalf("config file doesn't exist: %s", path)
+		panic("config file doesn't exist " + path)
 	}
-	var cfg Config
-	if err := cleanenv.ReadConfig(path, &cfg); err != nil {
-		log.Fatalf("failed to read config file: %s", err)
+	var res MigrationConfig
+	if err := cleanenv.ReadConfig(path, &res); err != nil {
+		panic(err)
 	}
-	return &cfg
+	return &res
+}
+
+func MustLoadByPath(path string) *Config {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		panic("config file doesn't exist " + path)
+	}
+	var res Config
+	if err := cleanenv.ReadConfig(path, &res); err != nil {
+		panic(err)
+	}
+	return &res
 }
 
 // get config path from flag or env.

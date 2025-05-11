@@ -3,6 +3,18 @@
 version: '3'
 
 tasks:
+  run:
+    desc: "run the gRPC app"
+    cmds:
+      - go mod tidy
+      - task migrate
+      - CONFIG_PATH=./config/local.yaml go run ./cmd/sso
+  run_test:
+    desc: "run the gRPC app for tests"
+    cmds:
+      - go mod tidy
+      - task migrate_test
+      - CONFIG_PATH=./config/local_tests.yaml go run ./cmd/sso
   migrate:
     desc: "create necessary tables for the PostgreSQL database"
     cmds:
@@ -11,9 +23,11 @@ tasks:
     desc: "drop postgresql tables"
     cmds:
       - go run ./cmd/migrator --config=config/migration.yaml --operation=down
-  run:
-    desc: "run the gRPC app"
+  migrate_test:
+    desc: "create necessary tables for the PostgreSQL database"
     cmds:
-      - go mod tidy
-      - task migrate
-      - CONFIG_PATH=./config/local.yaml go run ./cmd/sso
+      - go run ./cmd/migrator --config=config/migration_tests.yaml
+  migrate_test_down:
+    desc: "drop postgresql tables"
+    cmds:
+      - go run ./cmd/migrator --config=config/migration_tests.yaml --operation=down

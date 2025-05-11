@@ -1,0 +1,11 @@
+storage:
+    host: "localhost"
+    port: 5432
+    user: "postgres"
+    password: "password"
+    dbname: "sso_tests"
+    sslmode: "disable"
+
+
+migrations:
+    path: "tests/migrations"

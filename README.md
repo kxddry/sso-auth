@@ -28,4 +28,7 @@ Create a `migrations.yaml` file -- example in ./config/migrations.yaml
  
 - `task run` to automatically migrate and start the application;
 - `task migrate` to create necessary PostgreSQL tables;
-- `task mig_down` to drop the created PostgreSQL tables.
+- `task migrate_down` to drop the created PostgreSQL tables;
+- `task migrate_test` to create PostgreSQL tables for testing;
+- `task migrate_test_down` to drop them;
+- `task run_test` to run the server with the database for testing.
