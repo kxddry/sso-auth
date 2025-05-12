@@ -122,17 +122,26 @@ func (s *Storage) AppID(ctx context.Context, appName, appSecret string) (int64, 
 	}
 	defer tx.Rollback()
 
-	query := `SELECT * FROM apps WHERE name = $1`
+	query := `SELECT id, secret FROM apps WHERE name = $1`
 	row := tx.QueryRowContext(ctx, query, appName)
-	var appID int64
-	err = row.Scan(&appID)
+	var (
+		appID  int64
+		secret string
+	)
+	err = row.Scan(&appID, &secret)
 	if err == nil {
+		if secret != appSecret {
+			return 0, fmt.Errorf("%s: %w", op, storage.ErrWrongAppSecret)
+		}
 		return appID, nil
 	}
 	if errors.Is(err, sql.ErrNoRows) {
 		query = `INSERT INTO apps (name, secret) VALUES ($1, $2) RETURNING id;`
 		err = tx.QueryRowContext(ctx, query, appName, appSecret).Scan(&appID)
 		if err != nil {
+			if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" {
+				return 0, fmt.Errorf("%s: %w", op, storage.ErrAppSecretExists)
+			}
 			return 0, fmt.Errorf("%s: %w", op, err)
 		}
 

@@ -44,8 +44,6 @@ github.com/ilyakaznacheev/cleanenv v1.5.0 h1:0VNZXggJE2OYdXE87bfSSwGxeiGt9moSR2l
 github.com/ilyakaznacheev/cleanenv v1.5.0/go.mod h1:a5aDzaJrLCQZsazHol1w8InnDcOX0OColm64SlIi6gk=
 github.com/joho/godotenv v1.5.1 h1:7eLL/+HRGLY0ldzfGMeQkb7vMd0as4CfYvUVzLqw0N0=
 github.com/joho/godotenv v1.5.1/go.mod h1:f4LDr5Voq0i2e/R5DDNOoa2zzDfwtkZa6DnEwAbqwq4=
-github.com/kxddry/sso-protos v0.1.1 h1:oGABnMoxlmhMf/FXQg6zNS7/kcJGIMhI09fvcgIhCv4=
-github.com/kxddry/sso-protos v0.1.1/go.mod h1:d4LmRWdjLskfDeQAdju9BQpHM3++PyTfu0h6I5/YKas=
 github.com/kxddry/sso-protos v0.1.2 h1:S9paT6KG2KyihBKWviGaYJbJ5vuYyrFUBBYzxoLRJKw=
 github.com/kxddry/sso-protos v0.1.2/go.mod h1:d4LmRWdjLskfDeQAdju9BQpHM3++PyTfu0h6I5/YKas=
 github.com/lib/pq v1.10.9 h1:YXG7RB+JIjhP29X+OtkiDnYaXQwpS4JEWq7dtCCRUEw=

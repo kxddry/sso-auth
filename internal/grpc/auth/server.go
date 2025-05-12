@@ -118,6 +118,12 @@ func (s *serverAPI) AppID(ctx context.Context, req *ssov1.AppRequest) (*ssov1.Ap
 
 	appId, err := s.auth.AppID(ctx, req.GetName(), req.GetSecret())
 	if err != nil {
+		if errors.Is(err, auth.ErrAppSecretExists) {
+			return nil, status.Error(codes.InvalidArgument, "app secret already exists for another app! generate a new one.")
+		}
+		if errors.Is(err, auth.ErrWrongAppSecret) {
+			return nil, status.Error(codes.Unauthenticated, "wrong app secret")
+		}
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 

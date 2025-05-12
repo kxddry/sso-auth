@@ -58,6 +58,8 @@ var (
 	ErrInvalidPlaceholder = errors.New("invalid email or username")
 	ErrUserExists         = errors.New("user already exists")
 	ErrUserNotFound       = errors.New("user not found")
+	ErrAppSecretExists    = errors.New("app secret already exists")
+	ErrWrongAppSecret     = errors.New("wrong app secret")
 )
 
 // Login checks if the user with given credentials exists in the system.
@@ -180,6 +182,15 @@ func (a *Auth) AppID(ctx context.Context, name, secret string) (int64, error) {
 
 	appId, err := a.appProvider.AppID(ctx, name, secret)
 	if err != nil {
+		if errors.Is(err, storage.ErrAppSecretExists) {
+			log.Warn("app secret already exists", sl.Err(err))
+			return 0, fmt.Errorf("%s: %w", op, ErrAppSecretExists)
+		}
+		if errors.Is(err, storage.ErrWrongAppSecret) {
+			log.Warn("wrong app secret", sl.Err(err))
+			return 0, fmt.Errorf("%s: %w", op, ErrWrongAppSecret)
+		}
+		log.Error("error getting appID", sl.Err(err))
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
 	log.Info("generated or fetched appID", slog.Int64("appId", appId))
