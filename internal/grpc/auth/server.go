@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/kxddry/sso-auth/internal/lib/validator"
 	"github.com/kxddry/sso-auth/internal/services/auth"
+	cds "github.com/kxddry/sso-auth/output-error-codes"
 	ssov1 "github.com/kxddry/sso-protos/gen/go/sso"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -31,32 +32,32 @@ type Auth interface {
 const (
 	empty = 0
 
-	InternalError = "internal error"
+	InternalError = cds.InternalError
 
 	// login
-	PlaceholderIsRequired = "placeholder is required"
-	PasswordIsRequired    = "password is required"
-	InvalidPlaceholder    = "invalid placeholder"
-	InvalidCredentials    = "invalid credentials"
+	PlaceholderIsRequired = cds.PlaceholderIsRequired
+	PasswordIsRequired    = cds.PasswordIsRequired
+	InvalidPlaceholder    = cds.InvalidPlaceholder
+	InvalidCredentials    = cds.InvalidCredentials
 
 	// registration
-	EmailIsRequired    = "email is required"
-	UsernameIsRequired = "username is required"
-	AppIdIsRequired    = "app id is required"
-	InvalidEmail       = "invalid email"
-	InvalidUsername    = "invalid username"
-	InvalidPassword    = "invalid password. Required: 8 <= length <= 72; lower, upper, numeric, special characters."
-	UserAlreadyExists  = "user already exists"
+	EmailIsRequired    = cds.EmailIsRequired
+	UsernameIsRequired = cds.UsernameIsRequired
+	AppIdIsRequired    = cds.AppIdIsRequired
+	InvalidEmail       = cds.InvalidEmail
+	InvalidUsername    = cds.InvalidUsername
+	InvalidPassword    = cds.InvalidPassword
+	UserAlreadyExists  = cds.UserAlreadyExists
 
 	// IsAdmin
-	UserNotFound = "user not found"
+	UserNotFound = cds.UserNotFound
 
 	// AppID
-	WrongAppSecret         = "wrong app secret"
-	AppSecretAlreadyExists = "app secret already exists for another app! generate a new one."
-	NameIsRequired         = "name is required"
-	SecretIsRequired       = "secret is required"
-	InvalidUserID          = "invalid user id"
+	WrongAppSecret         = cds.WrongAppSecret
+	AppSecretAlreadyExists = cds.AppSecretAlreadyExists
+	NameIsRequired         = cds.NameIsRequired
+	SecretIsRequired       = cds.SecretIsRequired
+	InvalidUserID          = cds.InvalidUserID
 )
 
 func Register(gRPC *grpc.Server, auth Auth) {
