@@ -25,6 +25,7 @@ type Auth interface {
 		password string,
 	) (userID int64, err error)
 	IsAdmin(ctx context.Context, userID int64) (isAdmin bool, err error)
+	AppID(ctx context.Context, name, secret string) (appID int64, err error)
 }
 
 const (
@@ -105,6 +106,22 @@ func (s *serverAPI) IsAdmin(ctx context.Context, req *ssov1.IsAdminRequest) (*ss
 		return nil, status.Error(codes.Internal, "internal error")
 	}
 	return &ssov1.IsAdminResponse{IsAdmin: a}, nil
+}
+
+func (s *serverAPI) AppID(ctx context.Context, req *ssov1.AppRequest) (*ssov1.AppResponse, error) {
+	if req.Name == "" {
+		return nil, status.Error(codes.InvalidArgument, "name is required")
+	}
+	if req.Secret == "" {
+		return nil, status.Error(codes.InvalidArgument, "secret is required")
+	}
+
+	appId, err := s.auth.AppID(ctx, req.GetName(), req.GetSecret())
+	if err != nil {
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+
+	return &ssov1.AppResponse{AppId: appId}, nil
 }
 
 func (s *serverAPI) mustEmbedUnimplementedAuthServer() {

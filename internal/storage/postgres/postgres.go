@@ -114,6 +114,34 @@ func (s *Storage) App(ctx context.Context, appID int64) (models.App, error) {
 	return app, nil
 }
 
+func (s *Storage) AppID(ctx context.Context, appName, appSecret string) (int64, error) {
+	const op = "storage.postgres.App"
+	tx, err := s.db.BeginTx(ctx, nil)
+	if err != nil {
+		return 0, fmt.Errorf("%s: %w", op, err)
+	}
+	defer tx.Rollback()
+
+	query := `SELECT * FROM apps WHERE name = $1`
+	row := tx.QueryRowContext(ctx, query, appName)
+	var appID int64
+	err = row.Scan(&appID)
+	if err == nil {
+		return appID, nil
+	}
+	if errors.Is(err, sql.ErrNoRows) {
+		query = `INSERT INTO apps (name, secret) VALUES ($1, $2) RETURNING id;`
+		err = tx.QueryRowContext(ctx, query, appName, appSecret).Scan(&appID)
+		if err != nil {
+			return 0, fmt.Errorf("%s: %w", op, err)
+		}
+
+		return appID, tx.Commit()
+	}
+
+	return 0, fmt.Errorf("%s: %w", op, err)
+}
+
 func New(cfg config.Storage) (*Storage, error) {
 	const op = "storage.postgres.New"
 	dsn := pqlinks.DataSourceName(cfg)

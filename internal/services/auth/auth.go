@@ -33,6 +33,7 @@ type UserProvider interface {
 
 type AppProvider interface {
 	App(ctx context.Context, appID int64) (models.App, error)
+	AppID(ctx context.Context, appName, appSecret string) (int64, error) // generates an app ID
 }
 
 type Storage interface {
@@ -165,4 +166,22 @@ func (a *Auth) IsAdmin(ctx context.Context, userID int64) (bool, error) {
 	}
 	log.Info("checked if user is admin", slog.Bool("isAdmin", isAdmin))
 	return isAdmin, nil
+}
+
+func (a *Auth) AppID(ctx context.Context, name, secret string) (int64, error) {
+	const op = "auth.AppID"
+
+	log := a.log.With(
+		slog.String("op", op),
+		slog.String("appName", name),
+	)
+
+	log.Info("generating appId")
+
+	appId, err := a.appProvider.AppID(ctx, name, secret)
+	if err != nil {
+		return 0, fmt.Errorf("%s: %w", op, err)
+	}
+	log.Info("generated or fetched appID", slog.Int64("appId", appId))
+	return appId, nil
 }
