@@ -23,7 +23,7 @@ func (s *Storage) SaveUser(ctx context.Context, email, username string, hash []b
 	if err != nil {
 		return 0, fmt.Errorf("%s: %w", op, err)
 	}
-	defer func() { _ = tx.Rollback() }()
+	defer tx.Rollback()
 
 	var id int64
 	query := `INSERT INTO users(email, username, pass_hash) VALUES ($1, $2, $3) RETURNING id;`
