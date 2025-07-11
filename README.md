@@ -10,25 +10,56 @@ sso-auth is a Single Sign-On (SSO) JWT-token based authentication service writte
 - Database migrations using [golang-migrate](https://github.com/golang-migrate/migrate)
 - Configuration via YAML file
 
+# 🚀 Quick Start
+
 ## Getting Started
 
 ### Prerequisites
 
-- Go 1.20+
-- PostgreSQL
-- [golang-migrate](https://github.com/golang-migrate/migrate)
-- [Taskfile](https://taskfile.dev/)
+- Docker / Podman
+- PostgreSQL (optional if using the Docker Compose postgres service)
 
 ### Configuration
 
-Create a `config.yaml` file -- example in ./config/local.yaml
-Create a `migrations.yaml` file -- example in ./config/migrations.yaml
+Edit your configuration YAML file as needed and set environment variables for Docker Compose if required.
+
+---
 
 ### Run
- 
-- `task run` to automatically migrate and start the application;
-- `task migrate` to create necessary PostgreSQL tables;
-- `task migrate_down` to drop the created PostgreSQL tables;
-- `task migrate_test` to create PostgreSQL tables for testing;
-- `task migrate_test_down` to drop them;
-- `task run_test` to run the server with the database for testing.
+
+Use Docker Compose to run migrations and start the app:
+
+
+- **Start services**:
+
+```bash
+docker-compose up
+```
+
+
+- **Stop services**:
+
+```bash
+docker-compose down
+```
+
+- **Start migration (up)**:
+```bash
+- docker-compose up migration
+```
+
+- **Start migration (down)**:
+```bash
+- OPERATION=down docker-compose up migration 
+```
+
+
+---
+
+### Notes
+
+- The `migrator` service runs migrations using `golang-migrate`.
+- The `app` service starts the authentication server.
+- Both services depend on the `postgres` service if you use the included PostgreSQL container.
+
+---

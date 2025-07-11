@@ -1,0 +1,28 @@
+services:
+  migrator_down:
+    build:
+      context: .
+      dockerfile: ./cmd/migrator/Dockerfile
+    environment:
+      - CONFIG_PATH=${MIGRATION_CONFIG_PATH}
+      - OPERATION=down
+
+
+  migrator:
+    build:
+      context: .
+      dockerfile: cmd/migrator/Dockerfile
+    environment:
+      - CONFIG_PATH=${MIGRATION_CONFIG_PATH}
+      - OPERATION=up
+    depends_on:
+      - migrator_down
+
+  app:
+    build: .
+    environment:
+      - CONFIG_PATH=./config/config.yaml
+    ports:
+      - "42042:42042"
+    depends_on:
+      - migrator

@@ -6,6 +6,8 @@ import (
 	"github.com/kxddry/sso-auth/internal/config"
 	"github.com/kxddry/sso-auth/internal/lib/pqlinks"
 	"log"
+	"os"
+
 	// migration
 	"github.com/golang-migrate/migrate/v4"
 
@@ -22,7 +24,9 @@ import (
 func main() {
 	var op string
 	flag.StringVar(&op, "operation", "", "operation: up or down")
-
+	if op == "" {
+		op = os.Getenv("OPERATION")
+	}
 	cfg := config.MustLoadMigration()
 	pSt := cfg.Storage
 	pSt.DBName = "postgres"

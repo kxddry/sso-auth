@@ -20,3 +20,4 @@ CREATE TABLE IF NOT EXISTS admins
     user_id INTEGER UNIQUE NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     role VARCHAR(32) NOT NULL DEFAULT 'admin' -- 'superadmin', 'editor', etc.
 );
+
