@@ -2,7 +2,6 @@ CREATE TABLE IF NOT EXISTS users
 (
     id SERIAL PRIMARY KEY,
     email VARCHAR(320) UNIQUE NOT NULL,
-    username VARCHAR(32) UNIQUE NOT NULL,
     pass_hash BYTEA NOT NULL
 );
 -- indices are already created for unique variables

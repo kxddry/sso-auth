@@ -4,7 +4,7 @@ sso-auth is a Single Sign-On (SSO) JWT-token based authentication service writte
 
 ## Features
 
-- User registration and login with email or username
+- User registration and login with email via gRPC
 - Password validation with configurable rules
 - App management (register, retrieve apps)
 - Database migrations using [golang-migrate](https://github.com/golang-migrate/migrate)
@@ -52,6 +52,13 @@ docker-compose down
 ```bash
 - OPERATION=down docker-compose up migration 
 ```
+
+
+---
+
+### Connect your application
+
+
 
 
 ---

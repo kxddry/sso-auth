@@ -3,7 +3,7 @@ package suite
 import (
 	"context"
 	"github.com/kxddry/sso-auth/internal/config"
-	ssov1 "github.com/kxddry/sso-protos/gen/go/sso"
+	ssov2 "github.com/kxddry/sso-protos/v2/gen/go/sso"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"net"
@@ -16,7 +16,7 @@ const grpcHost = "localhost"
 type Suite struct {
 	*testing.T
 	Cfg        *config.Config
-	AuthClient ssov1.AuthClient
+	AuthClient ssov2.AuthClient
 }
 
 func New(t *testing.T) (context.Context, *Suite) {
@@ -39,7 +39,7 @@ func New(t *testing.T) (context.Context, *Suite) {
 	return ctx, &Suite{
 		T:          t,
 		Cfg:        cfg,
-		AuthClient: ssov1.NewAuthClient(cc),
+		AuthClient: ssov2.NewAuthClient(cc),
 	}
 }
 

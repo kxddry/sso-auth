@@ -4,19 +4,15 @@ const (
 	InternalError = "internal error"
 
 	// login
-	PlaceholderIsRequired = "placeholder is required"
-	PasswordIsRequired    = "password is required"
-	InvalidPlaceholder    = "invalid placeholder"
-	InvalidCredentials    = "invalid credentials"
+	PasswordIsRequired = "password is required"
+	InvalidCredentials = "invalid credentials"
 
 	// register
-	EmailIsRequired    = "email is required"
-	UsernameIsRequired = "username is required"
-	AppIdIsRequired    = "app id is required"
-	InvalidEmail       = "invalid email"
-	InvalidUsername    = "invalid username"
-	InvalidPassword    = "invalid password. Required: 8 <= length <= 72; lower, upper, numeric, special characters."
-	UserAlreadyExists  = "user already exists"
+	EmailIsRequired   = "email is required"
+	AppIdIsRequired   = "app id is required"
+	InvalidEmail      = "invalid email"
+	InvalidPassword   = "invalid password. Required: 8 <= length <= 72; lower, upper, numeric, special characters."
+	UserAlreadyExists = "user already exists"
 
 	// IsAdmin
 	UserNotFound = "user not found"

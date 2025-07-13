@@ -26,8 +26,7 @@ type UserSaver interface {
 }
 
 type UserProvider interface {
-	UserByEmail(ctx context.Context, email string) (models.User, error)
-	UserByUsername(ctx context.Context, username string) (models.User, error)
+	User(ctx context.Context, email string) (models.User, error)
 	IsAdmin(ctx context.Context, userID int64) (bool, error)
 }
 
@@ -55,7 +54,7 @@ func New(log *slog.Logger, storage Storage, tokenTTL time.Duration) *Auth {
 
 var (
 	ErrInvalidCredentials = errors.New("invalid login or password")
-	ErrInvalidPlaceholder = errors.New("invalid email or username")
+	ErrInvalidEmail       = errors.New("invalid email")
 	ErrUserExists         = errors.New("user already exists")
 	ErrUserNotFound       = errors.New("user not found")
 	ErrAppSecretExists    = errors.New("app secret already exists")
@@ -66,35 +65,18 @@ var (
 // If the user exists and the password is correct, returns token.
 // If the user exists, but password is incorrect, returns error.
 // If the user doesn't exist, also returns error.
-func (a *Auth) Login(ctx context.Context, placeholder string, typeOfPlaceholder int, password string, appID int64) (string, error) {
+func (a *Auth) Login(ctx context.Context, email string, password string, appID int64) (string, error) {
 	const op = "services.auth.Login"
 
 	log := a.log.With(
 		slog.String("op", op),
-		slog.String("placeholder", placeholder),
+		slog.String("email", email),
 	)
 
-	var u models.User
-	var err error
-	switch typeOfPlaceholder {
-	case models.Invalid:
-		log.Debug("invalid placeholder")
-
-		return "", fmt.Errorf("%s: %w", op, ErrInvalidPlaceholder)
-	case models.Username:
-		u, err = a.userProvider.UserByUsername(ctx, placeholder)
-	case models.Email:
-		u, err = a.userProvider.UserByEmail(ctx, placeholder)
-	default:
-		log.Debug("default")
-
-		return "", fmt.Errorf("%s: %w", op, ErrInvalidPlaceholder)
-	}
+	u, err := a.userProvider.User(ctx, email)
 	if err != nil {
 		if errors.Is(err, storage.ErrUserNotFound) {
-
 			log.Warn("user not found", sl.Err(err))
-
 			return "", fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
 		}
 		log.Error("failed to get user", sl.Err(err))
@@ -103,14 +85,15 @@ func (a *Auth) Login(ctx context.Context, placeholder string, typeOfPlaceholder 
 
 	if err = bcrypt.CompareHashAndPassword(u.PassHash, []byte(password)); err != nil {
 		log.Info(ErrInvalidCredentials.Error(), sl.Err(err))
-
 		return "", fmt.Errorf("%s: %w", op, ErrInvalidCredentials)
 	}
+
 	app, err := a.appProvider.App(ctx, appID)
 	if err != nil {
 		log.Debug("failed to get app", sl.Err(err))
 		return "", fmt.Errorf("%s: %w", op, err)
 	}
+
 	log.Info("user logged in successfully")
 	token, err := jwt.NewToken(u, app, a.tokenTTL)
 	if err != nil {
@@ -126,6 +109,7 @@ func (a *Auth) RegisterNewUser(ctx context.Context, email string, username strin
 
 	log := a.log.With(
 		slog.String("op", op),
+		slog.String("email", email),
 	)
 
 	log.Info("registering user")
