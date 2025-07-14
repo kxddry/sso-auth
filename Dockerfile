@@ -10,7 +10,7 @@ COPY ./ ./
 
 RUN go build -o app ./cmd/sso
 
-FROM debian:bookworm-slim
+FROM scratch
 LABEL authors="iv"
 
 COPY --from=builder /app/app /app
