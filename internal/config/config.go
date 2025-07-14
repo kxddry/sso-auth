@@ -8,10 +8,13 @@ import (
 )
 
 type Config struct {
-	Env      string        `yaml:"env" env-required:"true"`
-	Storage  Storage       `yaml:"postgres" env-required:"true"`
-	TokenTTL time.Duration `yaml:"token_ttl" env:"TOKEN_TTL" env-required:"true" env-default:"1h"`
-	GRPC     GRPCServer    `yaml:"grpc" env-required:"true"`
+	Env         string        `yaml:"env" env-required:"true"`
+	Storage     Storage       `yaml:"postgres" env-required:"true"`
+	TokenTTL    time.Duration `yaml:"token_ttl" env:"TOKEN_TTL" env-required:"true" env-default:"1h"`
+	GRPC        GRPCServer    `yaml:"grpc" env-required:"true"`
+	PubkeyPath  string        `yaml:"pubkey_path" env:"PUBKEY_PATH" env-required:"true"`
+	PrivkeyPath string        `yaml:"privkey_path" env:"PRIVKEY_PATH" env-required:"true"`
+	KeyId       string        `yaml:"key_id" env:"KEY_ID" env-required:"true"`
 }
 type Storage struct {
 	Host     string `yaml:"host" env-required:"true"`

@@ -17,7 +17,7 @@ func main() {
 	log.Debug("debug messages are enabled")
 
 	// init app
-	application := app.New(log, cfg.GRPC.Port, cfg.Storage, cfg.TokenTTL)
+	application := app.New(log, cfg.GRPC.Port, cfg.Storage, cfg.TokenTTL, cfg.PrivkeyPath, cfg.PubkeyPath, cfg.KeyId)
 
 	// run gRPC server
 	go application.GRPCSrv.MustRun() // run gRPC server in a separate goroutine to avoid blocking

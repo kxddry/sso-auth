@@ -41,7 +41,7 @@ func (s *Storage) Save(ctx context.Context, email string, hash []byte) (int64, e
 }
 
 func (s *Storage) User(ctx context.Context, email string) (models.User, error) {
-	const op = "storage.postgres.UserByEmail"
+	const op = "storage.postgres.User"
 	query := `SELECT * FROM users WHERE email = $1;`
 
 	row := s.db.QueryRowContext(ctx, query, email)
@@ -86,9 +86,9 @@ func (s *Storage) IsAdmin(ctx context.Context, userID int64) (bool, error) {
 func (s *Storage) App(ctx context.Context, appID int64) (models.App, error) {
 	const op = "storage.postgres.App"
 
-	row := s.db.QueryRowContext(ctx, `SELECT id, name, secret FROM apps WHERE id = $1`, appID)
+	row := s.db.QueryRowContext(ctx, `SELECT id, name, public_key FROM apps WHERE id = $1`, appID)
 	var app models.App
-	err := row.Scan(&app.ID, &app.Name, &app.Secret)
+	err := row.Scan(&app.ID, &app.Name, &app.Pubkey)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return models.App{}, storage.ErrAppNotFound
@@ -106,7 +106,7 @@ func (s *Storage) AppID(ctx context.Context, appName, appSecret string) (int64, 
 	}
 	defer tx.Rollback()
 
-	query := `SELECT id, secret FROM apps WHERE name = $1`
+	query := `SELECT id, public_key FROM apps WHERE name = $1`
 	row := tx.QueryRowContext(ctx, query, appName)
 	var (
 		appID  int64
@@ -124,7 +124,7 @@ func (s *Storage) AppID(ctx context.Context, appName, appSecret string) (int64, 
 		err = tx.QueryRowContext(ctx, query, appName, appSecret).Scan(&appID)
 		if err != nil {
 			if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" {
-				return 0, fmt.Errorf("%s: %w", op, storage.ErrAppSecretExists)
+				return 0, fmt.Errorf("%s: %w", op, storage.ErrAppPublicKeyExists)
 			}
 			return 0, fmt.Errorf("%s: %w", op, err)
 		}

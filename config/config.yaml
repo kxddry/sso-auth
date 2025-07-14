@@ -11,3 +11,6 @@ postgres:
 grpc:
     port: 42042
     timeout: 5s
+
+privateKeyPath: /path/to/private_key_ed25519.pem
+publicKeyPath: /path/to/public_key_ed25519.pem

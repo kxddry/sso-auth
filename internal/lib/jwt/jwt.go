@@ -1,24 +1,26 @@
 package jwt
 
 import (
+	"crypto/ed25519"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/kxddry/sso-auth/internal/domain/models"
+	"strconv"
 	"time"
 )
 
-func NewToken(user models.User, app models.App, duration time.Duration) (string, error) {
-	token := jwt.New(jwt.SigningMethodHS256)
+func NewToken(user models.User, app models.App, privateKey *ed25519.PrivateKey, ttl time.Duration, keyId string) (string, error) {
+	now := time.Now()
 
-	claims := token.Claims.(jwt.MapClaims)
-	claims["uid"] = user.ID
-	claims["email"] = user.Email
-	claims["exp"] = time.Now().Add(duration).Unix()
-	claims["app_id"] = app.ID
-
-	tString, err := token.SignedString([]byte(app.Secret))
-	if err != nil {
-		return "", err
+	claims := jwt.RegisteredClaims{
+		Subject:   strconv.FormatInt(user.ID, 10),
+		Issuer:    "auth-service",
+		Audience:  []string{app.Name},
+		ExpiresAt: jwt.NewNumericDate(now.Add(ttl)),
+		IssuedAt:  jwt.NewNumericDate(now),
 	}
+	token := jwt.NewWithClaims(jwt.SigningMethodEdDSA, claims)
 
-	return tString, nil
+	token.Header["kid"] = keyId
+
+	return token.SignedString(privateKey)
 }

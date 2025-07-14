@@ -7,6 +7,7 @@ import (
 	"github.com/kxddry/sso-auth/internal/services/auth"
 	cds "github.com/kxddry/sso-auth/output-error-codes"
 	ssov2 "github.com/kxddry/sso-protos/v2/gen/go/sso"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -19,11 +20,7 @@ type serverAPI struct {
 
 type Auth interface {
 	Login(ctx context.Context, email string, password string, appID int64) (token string, err error)
-	RegisterNewUser(
-		ctx context.Context,
-		email string,
-		password string,
-	) (userID int64, err error)
+	RegisterNewUser(ctx context.Context, email string, password string) (userID int64, err error)
 	IsAdmin(ctx context.Context, userID int64) (isAdmin bool, err error)
 	AppID(ctx context.Context, name, secret string) (appID int64, err error)
 }
@@ -127,11 +124,11 @@ func (s *serverAPI) AppID(ctx context.Context, req *ssov2.AppRequest) (*ssov2.Ap
 	if req.Name == "" {
 		return nil, status.Error(codes.InvalidArgument, NameIsRequired)
 	}
-	if req.Secret == "" {
+	if req.Pubkey == "" {
 		return nil, status.Error(codes.InvalidArgument, SecretIsRequired)
 	}
 
-	appId, err := s.auth.AppID(ctx, req.GetName(), req.GetSecret())
+	appId, err := s.auth.AppID(ctx, req.GetName(), req.GetPubkey())
 	if err != nil {
 		if errors.Is(err, auth.ErrAppSecretExists) {
 			return nil, status.Error(codes.InvalidArgument, AppSecretAlreadyExists)

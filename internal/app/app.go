@@ -14,7 +14,7 @@ type App struct {
 }
 
 // New creates a new App instance
-func New(log *slog.Logger, grpcPort int, storage config.Storage, tokenTTL time.Duration) *App {
+func New(log *slog.Logger, grpcPort int, storage config.Storage, tokenTTL time.Duration, privKeyPath, pubKeyPath, keyId string) *App {
 
 	// init storage
 	pq, err := postgres.New(storage)
@@ -23,7 +23,7 @@ func New(log *slog.Logger, grpcPort int, storage config.Storage, tokenTTL time.D
 	}
 
 	// init auth service
-	authService := auth.New(log, pq, tokenTTL)
+	authService, err := auth.New(log, pq, tokenTTL, privKeyPath, pubKeyPath, keyId)
 
 	// init auth grpc server
 	return &App{
