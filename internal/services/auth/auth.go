@@ -94,12 +94,12 @@ func loadPublicKey(path string) (ed25519.PublicKey, error) {
 // New returns a new instance of the Auth service.
 func New(log *slog.Logger, storage Storage, tokenTTL time.Duration, privateKeyPath, publicKeyPath string, keyId string) (*Auth, error) {
 
-	pubKey, err := loadPublicKey(privateKeyPath)
+	pubKey, err := loadPublicKey(publicKeyPath)
 	if err != nil {
 		return nil, err
 	}
 
-	privKey, err := loadPrivateKey(publicKeyPath)
+	privKey, err := loadPrivateKey(privateKeyPath)
 	if err != nil {
 		return nil, err
 	}
