@@ -76,7 +76,7 @@ func (s *serverAPI) Login(ctx context.Context, req *ssov2.LoginRequest) (*ssov2.
 	token, err := s.auth.Login(ctx, req.Email, req.Password, req.AppId)
 	if err != nil {
 		if errors.Is(err, auth.ErrInvalidCredentials) {
-			return nil, status.Error(codes.InvalidArgument, InvalidCredentials)
+			return nil, status.Error(codes.Unauthenticated, InvalidCredentials)
 		}
 		return nil, status.Error(codes.Internal, InternalError)
 	}
@@ -133,7 +133,7 @@ func (s *serverAPI) AppID(ctx context.Context, req *ssov2.AppRequest) (*ssov2.Ap
 	strkey := req.Pubkey
 	key, err := base64.UnmarshalPubKey(strkey)
 	if err != nil {
-		return nil, status.Error(codes.InvalidArgument, cds.InvalidCredentials)
+		return nil, status.Error(codes.Unauthenticated, cds.InvalidCredentials)
 	}
 
 	appId, err := s.auth.AppID(ctx, req.Name, key)
