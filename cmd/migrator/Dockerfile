@@ -13,10 +13,7 @@ RUN go build -o app ./cmd/migrator
 FROM debian:bookworm-slim
 LABEL authors="iv"
 
-COPY --from=builder /app/app /app
+COPY --from=builder /app/app /app/app
+COPY ./migrations/ /app/migrations/
 
-COPY ${MIGRATION_CONFIG_PATH} /
-
-ENV CONFIG_PATH=/${MIGRATION_CONFIG_PATH}
-
-CMD ["/app"]
+CMD ["/app/app"]

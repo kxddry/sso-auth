@@ -8,14 +8,11 @@ RUN go mod download
 
 COPY ./ ./
 
-RUN go build -o app ./cmd/sso
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o app ./cmd/sso
 
 FROM scratch
 LABEL authors="iv"
 
-COPY --from=builder /app/app /app
+COPY --from=builder /app/app /app/app
 
-COPY ${CONFIG_PATH} /
-
-ENV CONFIG_PATH=/${CONFIG_PATH}
-CMD ["/app"]
+CMD ["/app/app"]

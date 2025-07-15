@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/ed25519"
 	"errors"
+	"github.com/kxddry/sso-auth/internal/domain/models"
 	"github.com/kxddry/sso-auth/internal/lib/base64"
 	"github.com/kxddry/sso-auth/internal/lib/validator"
 	"github.com/kxddry/sso-auth/internal/services/auth"
@@ -25,6 +26,7 @@ type Auth interface {
 	RegisterNewUser(ctx context.Context, email string, password string) (userID int64, err error)
 	IsAdmin(ctx context.Context, userID int64) (isAdmin bool, err error)
 	AppID(ctx context.Context, name string, appPubkey ed25519.PublicKey) (appID int64, err error)
+	GetPublicKey() models.PubkeyResponse
 }
 
 const (
@@ -148,6 +150,16 @@ func (s *serverAPI) AppID(ctx context.Context, req *ssov2.AppRequest) (*ssov2.Ap
 	}
 
 	return &ssov2.AppResponse{AppId: appId}, nil
+}
+
+func (s *serverAPI) GetPublicKey(ctx context.Context, req *ssov2.PubkeyRequest) (*ssov2.PubkeyResponse, error) {
+	resp := s.auth.GetPublicKey()
+
+	return &ssov2.PubkeyResponse{
+		Pubkey:    resp.Pubkey,
+		Algorithm: resp.Algorithm,
+		KeyId:     resp.KeyId,
+	}, nil
 }
 
 // mustEmbedUnimplementedAuthServer is required to ensure that the serverAPI struct
