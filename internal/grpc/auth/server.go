@@ -2,7 +2,9 @@ package auth
 
 import (
 	"context"
+	"crypto/ed25519"
 	"errors"
+	"github.com/kxddry/sso-auth/internal/lib/base64"
 	"github.com/kxddry/sso-auth/internal/lib/validator"
 	"github.com/kxddry/sso-auth/internal/services/auth"
 	cds "github.com/kxddry/sso-auth/output-error-codes"
@@ -22,7 +24,7 @@ type Auth interface {
 	Login(ctx context.Context, email string, password string, appID int64) (token string, err error)
 	RegisterNewUser(ctx context.Context, email string, password string) (userID int64, err error)
 	IsAdmin(ctx context.Context, userID int64) (isAdmin bool, err error)
-	AppID(ctx context.Context, name, secret string) (appID int64, err error)
+	AppID(ctx context.Context, name string, appPubkey ed25519.PublicKey) (appID int64, err error)
 }
 
 const (
@@ -128,7 +130,13 @@ func (s *serverAPI) AppID(ctx context.Context, req *ssov2.AppRequest) (*ssov2.Ap
 		return nil, status.Error(codes.InvalidArgument, SecretIsRequired)
 	}
 
-	appId, err := s.auth.AppID(ctx, req.GetName(), req.GetPubkey())
+	strkey := req.Pubkey
+	key, err := base64.UnmarshalPubKey(strkey)
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, cds.InvalidCredentials)
+	}
+
+	appId, err := s.auth.AppID(ctx, req.Name, key)
 	if err != nil {
 		if errors.Is(err, auth.ErrAppSecretExists) {
 			return nil, status.Error(codes.InvalidArgument, AppSecretAlreadyExists)

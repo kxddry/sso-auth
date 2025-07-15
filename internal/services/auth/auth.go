@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"bytes"
 	"context"
 	"crypto/ed25519"
 	"crypto/x509"
@@ -9,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/kxddry/sso-auth/internal/domain/models"
+	"github.com/kxddry/sso-auth/internal/lib/base64"
 	"github.com/kxddry/sso-auth/internal/lib/jwt"
 	"github.com/kxddry/sso-auth/internal/lib/logger/sl"
 	"github.com/kxddry/sso-auth/internal/storage"
@@ -40,7 +40,7 @@ type UserProvider interface {
 
 type AppProvider interface {
 	App(ctx context.Context, appID int64) (models.App, error)
-	AppID(ctx context.Context, appName, appSecret string) (int64, error) // generates an app ID
+	AppID(ctx context.Context, appName, appPubkey string) (int64, error) // generates an app ID
 }
 
 type Storage interface {
@@ -218,7 +218,7 @@ func (a *Auth) IsAdmin(ctx context.Context, userID int64) (bool, error) {
 	return isAdmin, nil
 }
 
-func (a *Auth) AppID(ctx context.Context, name, secret string) (int64, error) {
+func (a *Auth) AppID(ctx context.Context, name string, appPubkey ed25519.PublicKey) (int64, error) {
 	const op = "auth.AppID"
 
 	log := a.log.With(
@@ -228,7 +228,9 @@ func (a *Auth) AppID(ctx context.Context, name, secret string) (int64, error) {
 
 	log.Info("generating appId")
 
-	appId, err := a.appProvider.AppID(ctx, name, secret)
+	strKey := base64.MarshalPubKey(appPubkey)
+
+	appId, err := a.appProvider.AppID(ctx, name, strKey)
 	if err != nil {
 		if errors.Is(err, storage.ErrAppPublicKeyExists) {
 			log.Warn("app secret already exists", sl.Err(err))
@@ -246,28 +248,9 @@ func (a *Auth) AppID(ctx context.Context, name, secret string) (int64, error) {
 }
 
 func (a *Auth) GetPublicKey() models.PubkeyResponse {
-	pemStr, err := encodeEd25519PublicKeyPEM(a.pubkey)
-	if err != nil {
-		a.log.Error("failed to encode public key", sl.Err(err))
-		return models.PubkeyResponse{}
-	}
-
 	return models.PubkeyResponse{
-		Pubkey:    pemStr,
+		Pubkey:    base64.MarshalPubKey(*a.pubkey),
 		Algorithm: "EdDSA",
 		KeyId:     a.KeyID,
 	}
-}
-
-func encodeEd25519PublicKeyPEM(pub *ed25519.PublicKey) (string, error) {
-	pubBytes, err := x509.MarshalPKIXPublicKey(pub)
-	if err != nil {
-		return "", err
-	}
-	var buf bytes.Buffer
-	err = pem.Encode(&buf, &pem.Block{
-		Type:  "PUBLIC KEY",
-		Bytes: pubBytes,
-	})
-	return buf.String(), err
 }

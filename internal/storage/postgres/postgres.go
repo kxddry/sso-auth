@@ -98,7 +98,7 @@ func (s *Storage) App(ctx context.Context, appID int64) (models.App, error) {
 	return app, nil
 }
 
-func (s *Storage) AppID(ctx context.Context, appName, appSecret string) (int64, error) {
+func (s *Storage) AppID(ctx context.Context, appName, appPubkey string) (int64, error) {
 	const op = "storage.postgres.App"
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
@@ -110,29 +110,23 @@ func (s *Storage) AppID(ctx context.Context, appName, appSecret string) (int64, 
 	row := tx.QueryRowContext(ctx, query, appName)
 	var (
 		appID  int64
-		secret string
+		pubkey string
 	)
-	err = row.Scan(&appID, &secret)
-	if err == nil {
-		if secret != appSecret {
-			return 0, fmt.Errorf("%s: %w", op, storage.ErrWrongAppSecret)
-		}
-		return appID, nil
-	}
-	if errors.Is(err, sql.ErrNoRows) {
-		query = `INSERT INTO apps (name, secret) VALUES ($1, $2) RETURNING id;`
-		err = tx.QueryRowContext(ctx, query, appName, appSecret).Scan(&appID)
-		if err != nil {
-			if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" {
-				return 0, fmt.Errorf("%s: %w", op, storage.ErrAppPublicKeyExists)
+	err = row.Scan(&appID, &pubkey)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			query = `INSERT INTO apps (name, public_key) VALUES ($1, $2) RETURNING id;`
+			err = tx.QueryRowContext(ctx, query, appName, appPubkey).Scan(&appID)
+			if err != nil {
+				if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" {
+					return 0, fmt.Errorf("%s: %w", op, storage.ErrAppPublicKeyExists)
+				}
 			}
-			return 0, fmt.Errorf("%s: %w", op, err)
 		}
-
-		return appID, tx.Commit()
+		return 0, fmt.Errorf("%s: %w", op, err)
 	}
 
-	return 0, fmt.Errorf("%s: %w", op, err)
+	return appID, tx.Commit()
 }
 
 func New(cfg config.Storage) (*Storage, error) {
